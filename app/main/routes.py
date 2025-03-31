@@ -9,19 +9,21 @@ import base64
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-def get_encryption_key(password):
-    salt = b'gizli-salt-degeri'  # Gerçek uygulamada güvenli bir salt kullanılmalı
+def get_encryption_key(password_hash):
+    # Sabit bir salt kullanıyoruz (gerçek uygulamada her kullanıcı için farklı salt kullanılmalı)
+    salt = b'gizli-salt-degeri'
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
         salt=salt,
         iterations=100000,
     )
-    key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+    # password_hash'i bytes'a çeviriyoruz
+    key = base64.urlsafe_b64encode(kdf.derive(password_hash.encode()))
     return key
 
-@bp.route('/')
-@bp.route('/index')
+@bp.route('/', methods=['GET', 'POST'])
+@bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     form = MessageForm()
@@ -53,6 +55,6 @@ def decrypt_message(message_id):
         decrypted_content = f.decrypt(message.encrypted_content.encode()).decode()
         return render_template('decrypt.html', title='Mesaj Çöz', 
                              message=message, decrypted_content=decrypted_content)
-    except:
-        flash('Mesaj çözülemedi!')
+    except Exception as e:
+        flash(f'Mesaj çözülemedi! Hata: {str(e)}')
         return redirect(url_for('main.index')) 
