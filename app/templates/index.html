@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Yeni Mesaj Gönder</h2>
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.message.label(class="form-label") }}
+                        {{ form.message(class="form-control", rows="4") }}
+                        {% for error in form.message.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <h3 class="mb-4">Mesajlar</h3>
+        {% for message in messages %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">{{ message.author.username }}</h5>
+                    <small class="text-muted">{{ message.timestamp.strftime('%d.%m.%Y %H:%M') }}</small>
+                </div>
+                <p class="card-text text-muted">Şifrelenmiş mesaj...</p>
+                <a href="{{ url_for('main.decrypt_message', message_id=message.id) }}" class="btn btn-primary btn-sm">Mesajı Çöz</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            Henüz hiç mesaj yok. İlk mesajı siz gönderin!
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 
